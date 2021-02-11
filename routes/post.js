@@ -6,7 +6,6 @@ const {Post} = require('../models/')
 router.get('/', async(req, res, next)=>{
     try{
         const posts =  await Post.findAll()
-        console.log(posts)
         res.json(posts)
     }catch(error){
         return next(error)
@@ -27,12 +26,15 @@ router.get('/:id', async(req, res, next)=>{
 router.post('/', async(req, res, next)=>{
     const {title, writer, content} = req.body
     try {
-        await new Post.create({
+        const result = await Post.create({
             title,
             writer,
             content
         })
-        res.json({status: 201})
+        res.json({
+            status: 201,
+            message: `${result.dataValues.id} post is created`
+        })
     }catch(error){
         return next(error)
     }
@@ -49,6 +51,10 @@ router.put('/:id', async(req, res, next)=> {
         },{
             where: {id:req.params.id}
         })
+        
+        res.json({
+            message: `${req.params.id} post is edited`
+        })
     }catch(error){
         return next(error)
     }
@@ -58,6 +64,9 @@ router.put('/:id', async(req, res, next)=> {
 router.delete('/:id', async(req, res, next)=>{
     try{
         await Post.destroy({where: {id: req.params.id}})
+        res.json({
+            message: `${req.params.id} post is deleted`
+        })
     }catch(error){
         return next(error)
     }

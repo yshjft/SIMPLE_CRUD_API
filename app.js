@@ -45,8 +45,7 @@ app.use((req, res, next)=>{
 })
 
 app.use((err, req, res, next)=>{
-    //res.json 해주자
-    console.error(err.status || 500, err.message)
+    res.json(err.status || 500, err.message)
 })
 
 app.listen(app.get('port'), ()=>{
