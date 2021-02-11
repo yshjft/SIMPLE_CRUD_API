@@ -6,6 +6,7 @@ const {Post} = require('../models/')
 router.get('/', async(req, res, next)=>{
     try{
         const posts =  await Post.findAll()
+        console.log(posts)
         res.json(posts)
     }catch(error){
         return next(error)
