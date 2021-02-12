@@ -35,7 +35,7 @@ app.use(session({
         secure: false,
     }
 }))
-app.use('/posts', PostRouter)
+app.use('/api/posts', PostRouter)
 
 // 404 에러 핸들러
 app.use((req, res, next)=>{
