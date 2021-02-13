@@ -51,7 +51,6 @@ router.put('/:id', async(req, res, next)=> {
         },{
             where: {id:req.params.id}
         })
-        
         res.json({
             message: `${req.params.id} post is edited`
         })

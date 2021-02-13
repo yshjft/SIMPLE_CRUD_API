@@ -7,6 +7,12 @@ module.exports = {
         database: 'SIMPLE_CRUD',
         host: '127.0.0.1',
         dialect: 'mysql',
+        dialectOptions: {
+            charset: 'utf8mb4',
+            dateStrings: true,
+            typeCast: true
+        },
+        timezone: '+09:00',
         operatorAliases: 'false',
     },
     production: {
@@ -14,7 +20,13 @@ module.exports = {
         password: process.env.SEQUELIZE_PASSWORD,
         database: 'SIMPLE_CRUD',
         host: '127.0.0.1',
+        dialectOptions: {
+            charset: 'utf8mb4',
+            dateStrings: true,
+            typeCast: true
+        },
         dialect: 'mysql',
+        timezone: '+09:00',
         operatorAliases: 'false',
         logging: false
     }
