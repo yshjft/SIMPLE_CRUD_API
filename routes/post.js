@@ -50,14 +50,14 @@ router.post('/', upload.single('file'), async(req, res, next)=>{
     const {title, writer, content} = req.body
 
     console.log(title, writer, content)
-    console.log(req.file.location)
+    console.log(req.file) //image url
 
     try {
-        // const result = await Post.create({
-        //     title,
-        //     writer,
-        //     content
-        // })
+        const result = await Post.create({
+            title,
+            writer,
+            content
+        })
         // res.json({
         //     status: 201,
         //     message: `${result.dataValues.id} post is created`
