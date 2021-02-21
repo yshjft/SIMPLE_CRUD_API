@@ -22,4 +22,7 @@ module.exports = class Post extends Sequelize.Model {
             collate: 'utf8_general_ci'
         })
     }
+    static associate(db){
+        db.Post.hasMany(db.PostImage, {foreignKey: 'post', sourceKey: 'id', onDelete: 'CASCADE', hooks:true})
+    }
 }
