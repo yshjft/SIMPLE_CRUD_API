@@ -89,15 +89,17 @@ router.delete('/:id', async(req, res, next)=>{
             where post = ${req.params.id}
         `)
 
-        const params =  {
-            Bucket: 'jerryfirstimagebucket',
-            Key: post[0].imageKey
-        }
-        s3.deleteObject(params, (err, data)=>{
-            if (err) {
-                return next(err)
+        if(post.length !== 0){
+            const params =  {
+                Bucket: 'jerryfirstimagebucket',
+                Key: post[0].imageKey
             }
-        })
+            s3.deleteObject(params, (err, data)=>{
+                if (err) {
+                    return next(err)
+                }
+            })
+        }
         await Post.destroy({where: {id: req.params.id}})
 
         
