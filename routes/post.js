@@ -61,9 +61,11 @@ router.post('/', upload.single('file'), async(req, res, next)=>{
     }
 })
 
-// PUT /posts/:id
-router.put('/:id', async(req, res, next)=> {
-    const {title, writer, content} = req.body
+// PUT /posts/:id`₩
+router.put('/:id', upload.single('file'), async(req, res, next)=> {
+    const {title, writer, content, imageUrl} = req.body
+    const {file} = req
+
     try{
         await Post.update({
             title,
@@ -72,6 +74,24 @@ router.put('/:id', async(req, res, next)=> {
         },{
             where: {id:req.params.id}
         })
+
+        if(imageUrl && file){
+            await PostImage.update({
+                imageKey: file.key,
+                imageUrl: file.location
+            },{
+                where: {post: req.params.id}
+            })
+        }
+
+        if(!imageUrl && file){
+            await PostImage.create({
+                imageKey: file.key,
+                imageUrl: file.location,
+                post: req.params.id
+            })
+        }
+
         res.json({
             message: `${req.params.id} post is edited`
         })
