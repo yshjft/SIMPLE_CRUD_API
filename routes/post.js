@@ -61,7 +61,23 @@ router.post('/', upload.single('file'), async(req, res, next)=>{
     }
 })
 
-// PUT /posts/:id`₩
+// PUT /posts/:id`
+/*
+    수정할 때는 S3를 덮어 씌워야 한다.
+    case 'file이 있는 경우' :
+        case '기존 수정':
+            S3에서 기존 이미지 삭제
+            postsImages 업데이트
+        case '새로운 업로드':
+            postImages에 추가
+
+    case 'file이 없는 경우':
+        case '삭제':
+            postImages만 삭제
+            S3도 삭제
+        case '변경 없음':
+            아무것도 안함
+*/
 router.put('/:id', upload.single('file'), async(req, res, next)=> {
     const {title, writer, content, imageUrl} = req.body
     const {file} = req
@@ -75,22 +91,36 @@ router.put('/:id', upload.single('file'), async(req, res, next)=> {
             where: {id:req.params.id}
         })
 
-        if(imageUrl && file){
-            await PostImage.update({
-                imageKey: file.key,
-                imageUrl: file.location
-            },{
-                where: {post: req.params.id}
-            })
-        }
+        
+        // await PostImage.create({
+        //     imageKey: file.key,
+        //     imageUrl: file.location,
+        //     post: req.params.id
+        // })
 
-        if(!imageUrl && file){
-            await PostImage.create({
-                imageKey: file.key,
-                imageUrl: file.location,
-                post: req.params.id
-            })
-        }
+
+        // if(imageUrl && file){
+        //     // 기존 S3 삭제
+        //     await PostImage.update({
+        //         imageKey: file.key,
+        //         imageUrl: file.location
+        //     },{
+        //         where: {post: req.params.id}
+        //     })
+        // }
+
+        // if(!imageUrl && file){
+        //     await PostImage.create({
+        //         imageKey: file.key,
+        //         imageUrl: file.location,
+        //         post: req.params.id
+        //     })
+        // }
+
+        // if(imageUrl  && !file){
+        //     // postImages 삭제
+        //     // S3 삭제
+        // }
 
         res.json({
             message: `${req.params.id} post is edited`
