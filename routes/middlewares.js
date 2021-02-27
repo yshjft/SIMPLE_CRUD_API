@@ -22,9 +22,12 @@ exports.upload = multer({
                     from postImages
                     where post = ${req.params.id}
                 `)
-
-                if(postImage.length === 0) cb(null, `image_folder/${new Date()}${path.basename(file.originalname)}`)
-                else cb(null, postImage[0].imageKey)    
+                
+                if(postImage.length === 0) {
+                    cb(null, `image_folder/${new Date()}${path.basename(file.originalname)}`)
+                } else { 
+                    cb(null, postImage[0].imageKey)
+                }
             }else{
                 cb(null, `image_folder/${new Date()}${path.basename(file.originalname)}`)
             }

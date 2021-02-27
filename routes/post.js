@@ -91,40 +91,17 @@ router.put('/:id', upload.single('file'), async(req, res, next)=> {
             where: {id:req.params.id}
         })
 
-        
-        // await PostImage.create({
-        //     imageKey: file.key,
-        //     imageUrl: file.location,
-        //     post: req.params.id
-        // })
-
-
-        // if(imageUrl && file){
-        //     // 기존 S3 삭제
-        //     await PostImage.update({
-        //         imageKey: file.key,
-        //         imageUrl: file.location
-        //     },{
-        //         where: {post: req.params.id}
-        //     })
-        // }
-
-        // if(!imageUrl && file){
-        //     await PostImage.create({
-        //         imageKey: file.key,
-        //         imageUrl: file.location,
-        //         post: req.params.id
-        //     })
-        // }
-
-        // if(imageUrl  && !file){
-        //     // postImages 삭제
-        //     // S3 삭제
-        // }
+        if(imageUrl === 'null' && file != null){
+            await PostImage.create({
+                imageKey: file.key,
+                imageUrl: file.location,
+                post: req.params.id
+            })
+        }
 
         res.json({
             message: `${req.params.id} post is edited`
-        })
+        })        
     }catch(error){
         return next(error)
     }
