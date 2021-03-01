@@ -62,25 +62,9 @@ router.post('/', upload.single('file'), async(req, res, next)=>{
 })
 
 // PUT /posts/:id`
-/*
-    수정할 때는 S3를 덮어 씌워야 한다.
-    case 'file이 있는 경우' :
-        case '기존 수정':
-            S3에서 기존 이미지 삭제
-            postsImages 업데이트
-        case '새로운 업로드':
-            postImages에 추가
-
-    case 'file이 없는 경우':
-        case '삭제':
-            postImages만 삭제
-            S3도 삭제
-        case '변경 없음':
-            아무것도 안함
-*/
 router.put('/:id', upload.single('file'), async(req, res, next)=> {
-    const {title, writer, content, imageUrl} = req.body
-    const {file} = req
+    const {title, writer, content, imageUrl = null} = req.body
+    const {file = null} = req
 
     try{
         await Post.update({
@@ -91,12 +75,84 @@ router.put('/:id', upload.single('file'), async(req, res, next)=> {
             where: {id:req.params.id}
         })
 
-        if(imageUrl === 'null' && file != null){
-            await PostImage.create({
-                imageKey: file.key,
-                imageUrl: file.location,
-                post: req.params.id
-            })
+        if(imageUrl){
+            if(file){
+                const [postImages, metadata] = await sequelize.query(`
+                    select imageKey, imageUrl
+                    from postImages
+                    where post = ${req.params.id}
+                `)
+
+                const params =  {
+                    Bucket: 'jerryfirstimagebucket',
+                    Key: postImages[0].imageKey
+                }
+                s3.deleteObject(params, (err, data)=>{
+                    if (err) {
+                        return next(err)
+                    }
+                })
+
+                await PostImage.update({
+                    imageKey: file.key,
+                    imageUrl: file.location,
+                }, {
+                    where: {post: req.params.id}
+                })
+            }
+        }else{
+            if(file){
+                const [postImages, metadata] = await sequelize.query(`
+                    select imageKey, imageUrl
+                    from postImages
+                    where post = ${req.params.id}
+                `)
+
+                if(postImages.length === 0){
+                    await PostImage.create({
+                        imageKey: req.file.key,
+                        imageUrl: req.file.location,
+                        post: req.params.id
+                    })
+                }else {
+                    const params =  {
+                        Bucket: 'jerryfirstimagebucket',
+                        Key: postImages[0].imageKey
+                    }
+                    s3.deleteObject(params, (err, data)=>{
+                        if (err) {
+                            return next(err)
+                        }
+                    })
+
+                    await PostImage.update({
+                        imageKey: file.key,
+                        imageUrl: file.location,
+                    }, {
+                        where: {post: req.params.id}
+                    })
+                }
+            }else{
+                const [postImages, metadata] = await sequelize.query(`
+                    select imageKey, imageUrl
+                    from postImages
+                    where post = ${req.params.id}
+                `)
+
+                if(postImages.length !== 0){
+                    const params =  {
+                        Bucket: 'jerryfirstimagebucket',
+                        Key: postImages[0].imageKey
+                    }
+                    s3.deleteObject(params, (err, data)=>{
+                        if (err) {
+                            return next(err)
+                        }
+                    })
+
+                    await PostImage.destroy({where: {post: req.params.id}})
+                }
+            }
         }
 
         res.json({
