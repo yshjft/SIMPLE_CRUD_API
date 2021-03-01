@@ -6,12 +6,17 @@ const s3 = require('../config/s3')
 
 // GET /posts
 router.get('/', async(req, res, next)=>{
+    const {query:{title = null}} = req
     try{
-        const [posts, metadata] = await sequelize.query(`
+        let query = `
             select posts.id, posts.title, posts.writer, posts.createdAt, posts.updatedAt, postimages.imageUrl 
             from posts 
-            left join postimages on posts.id = postimages.post
-        `)
+            left join postimages 
+            on posts.id = postimages.post
+        `
+        if(title)  query += `where title like '%${title}%'`
+
+        const [posts, metadata] = await sequelize.query(query)
         res.json(posts)
     }catch(error){
         return next(error)
